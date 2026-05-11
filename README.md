@@ -34,10 +34,25 @@ docs/           — аналитика и проектирование (IDEF0, U
 
 **Важно:** схема Prisma лежит в `backend/prisma/schema.prisma`. Если вы в корне `ПРКСП КР` и запускаете голый `npx prisma migrate deploy`, Prisma ищет `./prisma/` в текущей папке и выдаёт ошибку. Используйте либо `cd backend`, либо скрипты из корневого `package.json` ниже.
 
+### 0. PostgreSQL (иначе `P1000: Authentication failed`)
+
+Prisma читает `DATABASE_URL` из **`backend/.env`**. Ошибка **P1000** значит: по этому адресу сервер не принял логин/пароль, или Postgres не запущен.
+
+**Рекомендуется для этого проекта** — поднять только контейнер БД из репозитория (логин/пароль уже совпадают с `backend/.env.example`):
+
+```bash
+docker compose up -d db
+```
+
+В `.env` по умолчанию указан порт **`55432`** на хосте (см. `docker-compose.yml`). После `cp backend/.env.example backend/.env` миграции должны проходить без правки URL.
+
+Если вы **не** используете compose, а свой Postgres на `localhost:5432` — отредактируйте `DATABASE_URL` под свои учётные данные и убедитесь, что база `coworking` создана (`CREATE DATABASE coworking;`).
+
 ### Вариант A — всё из корня репозитория
 
 ```bash
-cp backend/.env.example backend/.env   # настройте DATABASE_URL и JWT_SECRET
+docker compose up -d db                # Postgres :55432 → см. шаг 0
+cp backend/.env.example backend/.env   # при необходимости поправьте JWT_SECRET
 npm run install:all                    # зависимости backend + frontend
 npm run prisma:migrate                 # prisma migrate deploy в backend
 npm run prisma:seed
@@ -47,9 +62,11 @@ npm run frontend:dev                   # SPA :5173
 
 ### Вариант B — только каталог `backend/`
 
+Сначала поднимите Postgres (шаг **0**), из корня репозитория: `docker compose up -d db`.
+
 ```bash
 cd backend
-cp .env.example .env               # поправьте DATABASE_URL/JWT_SECRET
+cp .env.example .env               # DATABASE_URL должен совпадать с запущенной БД
 npm install
 npm run prisma:migrate             # не используйте голый npx prisma из корня
 npm run prisma:seed                # аккаунты admin/manager/user + комнаты
