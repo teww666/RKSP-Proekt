@@ -42,7 +42,8 @@ Prisma читает `DATABASE_URL` из **`backend/.env`**. Ошибка **P1000
 
 Команды **`npm run prisma:migrate`** и **`npm run prisma:seed`** из **корня** репозитория сами выполняют `docker compose up -d db` и ждут готовности БД (`scripts/ensure-postgres.sh`). Нужен установленный **Docker Desktop** (или иной Docker с `docker compose`).
 
-Вручную поднять только БД: `npm run db:up` или `docker compose up -d db`.
+Вручную поднять только БД: `npm run db:up` или  
+`COMPOSE_PROJECT_NAME=meetinghub docker compose up -d db` (нужно, если папка проекта с кириллицей/пробелами и Compose ругается на пустое имя проекта).
 
 После `cp backend/.env.example backend/.env` строка `DATABASE_URL` с портом **55432** должна совпадать с compose.
 

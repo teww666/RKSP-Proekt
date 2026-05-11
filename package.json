@@ -3,7 +3,7 @@
   "private": true,
   "description": "Корневые npm-скрипты: Prisma и Nest живут в backend/, SPA — во frontend/. Не вызывайте npx prisma из корня без --schema.",
   "scripts": {
-    "db:up": "docker compose up -d db",
+    "db:up": "COMPOSE_PROJECT_NAME=meetinghub docker compose up -d db",
     "db:ensure": "sh scripts/ensure-postgres.sh",
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "prisma:generate": "npm --prefix backend run prisma:generate",

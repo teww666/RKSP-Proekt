@@ -1,3 +1,7 @@
+# Явное имя проекта: иначе Docker Compose может дать «project name must not be empty»
+# для путей с кириллицей/пробелами в имени каталога.
+name: meetinghub
+
 services:
   db:
     image: postgres:16-alpine
