@@ -38,23 +38,22 @@ docs/           — аналитика и проектирование (IDEF0, U
 
 Prisma читает `DATABASE_URL` из **`backend/.env`**. Ошибка **P1000** значит: по этому адресу сервер не принял логин/пароль, или Postgres не запущен.
 
-**Рекомендуется для этого проекта** — поднять только контейнер БД из репозитория (логин/пароль уже совпадают с `backend/.env.example`):
+**Рекомендуется для этого проекта** — контейнер PostgreSQL из `docker-compose.yml` (порт на хосте **`55432`**, логин/пароль совпадают с `backend/.env.example`).
 
-```bash
-docker compose up -d db
-```
+Команды **`npm run prisma:migrate`** и **`npm run prisma:seed`** из **корня** репозитория сами выполняют `docker compose up -d db` и ждут готовности БД (`scripts/ensure-postgres.sh`). Нужен установленный **Docker Desktop** (или иной Docker с `docker compose`).
 
-В `.env` по умолчанию указан порт **`55432`** на хосте (см. `docker-compose.yml`). После `cp backend/.env.example backend/.env` миграции должны проходить без правки URL.
+Вручную поднять только БД: `npm run db:up` или `docker compose up -d db`.
+
+После `cp backend/.env.example backend/.env` строка `DATABASE_URL` с портом **55432** должна совпадать с compose.
 
 Если вы **не** используете compose, а свой Postgres на `localhost:5432` — отредактируйте `DATABASE_URL` под свои учётные данные и убедитесь, что база `coworking` создана (`CREATE DATABASE coworking;`).
 
 ### Вариант A — всё из корня репозитория
 
 ```bash
-docker compose up -d db                # Postgres :55432 → см. шаг 0
 cp backend/.env.example backend/.env   # при необходимости поправьте JWT_SECRET
 npm run install:all                    # зависимости backend + frontend
-npm run prisma:migrate                 # prisma migrate deploy в backend
+npm run prisma:migrate                 # поднимет Postgres в Docker (если нужно) и выполнит migrate deploy
 npm run prisma:seed
 npm run backend:dev                    # API :4000 (в другом терминале)
 npm run frontend:dev                   # SPA :5173

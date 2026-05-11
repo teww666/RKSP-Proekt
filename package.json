@@ -4,10 +4,11 @@
   "description": "Корневые npm-скрипты: Prisma и Nest живут в backend/, SPA — во frontend/. Не вызывайте npx prisma из корня без --schema.",
   "scripts": {
     "db:up": "docker compose up -d db",
+    "db:ensure": "sh scripts/ensure-postgres.sh",
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "prisma:generate": "npm --prefix backend run prisma:generate",
-    "prisma:migrate": "npm --prefix backend run prisma:migrate",
-    "prisma:seed": "npm --prefix backend run prisma:seed",
+    "prisma:migrate": "npm run db:ensure && npm --prefix backend run prisma:migrate",
+    "prisma:seed": "npm run db:ensure && npm --prefix backend run prisma:seed",
     "backend:dev": "npm --prefix backend run start:dev",
     "frontend:dev": "npm --prefix frontend run dev",
     "backend:test": "npm --prefix backend test",
