@@ -13,7 +13,7 @@
     "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:fuzz": "jest --testPathPattern=fuzz --runInBand",
-    "test:phase": "jest --runInBand --testPathIgnorePatterns=e2e|fuzz --verbose",
+    "test:phase": "jest --runInBand --testPathIgnorePatterns='e2e|fuzz' --verbose",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:seed": "prisma db seed"
