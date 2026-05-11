@@ -32,13 +32,26 @@ docs/           — аналитика и проектирование (IDEF0, U
 
 ## Быстрый старт локально
 
-### 1. База и миграции
+**Важно:** схема Prisma лежит в `backend/prisma/schema.prisma`. Если вы в корне `ПРКСП КР` и запускаете голый `npx prisma migrate deploy`, Prisma ищет `./prisma/` в текущей папке и выдаёт ошибку. Используйте либо `cd backend`, либо скрипты из корневого `package.json` ниже.
+
+### Вариант A — всё из корня репозитория
+
+```bash
+cp backend/.env.example backend/.env   # настройте DATABASE_URL и JWT_SECRET
+npm run install:all                    # зависимости backend + frontend
+npm run prisma:migrate                 # prisma migrate deploy в backend
+npm run prisma:seed
+npm run backend:dev                    # API :4000 (в другом терминале)
+npm run frontend:dev                   # SPA :5173
+```
+
+### Вариант B — только каталог `backend/`
 
 ```bash
 cd backend
 cp .env.example .env               # поправьте DATABASE_URL/JWT_SECRET
 npm install
-npx prisma migrate deploy
+npm run prisma:migrate             # не используйте голый npx prisma из корня
 npm run prisma:seed                # аккаунты admin/manager/user + комнаты
 npm run start:dev                  # REST слушает :4000
 ```
