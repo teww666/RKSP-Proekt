@@ -53,12 +53,41 @@ https://<ваш-домен-api>.up.railway.app/health
 
 | Переменная | Значение |
 | ---------- | -------- |
-| `DATABASE_URL` | Вставьте из Postgres (`${{Postgres.DATABASE_URL}}` в Railway или скопируйте вручную) |
+| `DATABASE_URL` | **Reference** из сервиса Postgres (см. ниже) — не копируйте `localhost:55432` из локального `.env` |
 | `JWT_SECRET` | Длинная случайная строка (не оставляйте demo) |
 | `JWT_EXPIRES_IN` | `7d` |
 | `CORS_ORIGIN` | URL фронта через запятую, например `https://meetinghub-web-production.up.railway.app` |
 
 `PORT` Railway подставит сам — **не задавайте** `PORT=4000` вручную.
+
+#### Как правильно привязать Postgres (критично)
+
+1. Откройте сервис **MeetingHub-API** → **Variables**.
+2. **New Variable** → **Add Reference** (или «Reference»).
+3. Выберите сервис **Postgres** → переменную **`DATABASE_URL`** (лучше **`DATABASE_PRIVATE_URL`**, если есть — внутренняя сеть Railway).
+4. Сохраните и сделайте **Redeploy**.
+
+Если в Variables API указан `localhost:55432` — healthcheck **всегда** будет падать.
+
+### Healthcheck: «service unavailable» (как на скриншоте)
+
+Сборка прошла, но `/health` не отвечает — контейнер **не поднял Nest** до конца. Чаще всего:
+
+| Причина | Что сделать |
+| -------- | ------------ |
+| Нет или неверный `DATABASE_URL` | Reference из Postgres, redeploy |
+| В API скопирован локальный `.env` | Удалить `DATABASE_URL=localhost...` из Variables Railway |
+| Postgres ещё не Online | Дождаться зелёного статуса БД |
+| Миграции не прошли | Deploy Logs → строки `[start]` и `prisma migrate` |
+
+После исправления в логах должно быть:
+
+```text
+[start] Миграции применены.
+[start] Запуск NestJS...
+```
+
+Проверка в браузере: `https://meetinghub-api-production.up.railway.app/health`
 
 ### Типичные причины Build failed
 
