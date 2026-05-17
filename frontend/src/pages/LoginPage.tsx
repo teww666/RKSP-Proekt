@@ -1,11 +1,12 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../api';
 import { useAuth } from '../context/AuthProvider';
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, busy, profile, token } = useAuth();
+  const { login, busy, profile, token, error: authError } = useAuth();
   const [email, setEmail] = useState('user@coworking.local');
   const [password, setPassword] = useState('User123!');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export function LoginPage() {
     setLocalError(null);
     const ok = await login(email.trim(), password);
     if (!ok) {
-      setLocalError('Не удалось войти. Используйте seed аккаунт или свой email.');
+      setLocalError(authError ?? 'Не удалось войти. Проверьте API_PUBLIC_URL на Railway.');
       return;
     }
     navigate('/rooms', { replace: true });
@@ -52,6 +53,9 @@ export function LoginPage() {
           />
         </label>
         {(localError || '').length > 0 && <p className="error-banner">{localError}</p>}
+        <p className="muted tiny">
+          API: {getApiBaseUrl() || 'не задан (задайте API_PUBLIC_URL на Railway Web)'}
+        </p>
         <button type="submit" className="primary" disabled={busy}>
           {busy ? 'Проверяем…' : 'Войти'}
         </button>

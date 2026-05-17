@@ -4,14 +4,16 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash('Admin123!', 10);
+  const adminHash = await bcrypt.hash('Admin123!', 10);
+  const managerHash = await bcrypt.hash('Manager123!', 10);
+  const userHash = await bcrypt.hash('User123!', 10);
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@coworking.local' },
-    update: {},
+    update: { passwordHash: adminHash, fullName: 'Администратор', role: Role.ADMIN },
     create: {
       email: 'admin@coworking.local',
-      passwordHash,
+      passwordHash: adminHash,
       fullName: 'Администратор',
       role: Role.ADMIN,
     },
@@ -19,10 +21,14 @@ async function main() {
 
   const manager = await prisma.user.upsert({
     where: { email: 'manager@coworking.local' },
-    update: {},
+    update: {
+      passwordHash: managerHash,
+      fullName: 'Менеджер переговорных',
+      role: Role.MANAGER,
+    },
     create: {
       email: 'manager@coworking.local',
-      passwordHash: await bcrypt.hash('Manager123!', 10),
+      passwordHash: managerHash,
       fullName: 'Менеджер переговорных',
       role: Role.MANAGER,
     },
@@ -30,10 +36,10 @@ async function main() {
 
   const user = await prisma.user.upsert({
     where: { email: 'user@coworking.local' },
-    update: {},
+    update: { passwordHash: userHash, fullName: 'Пользователь', role: Role.USER },
     create: {
       email: 'user@coworking.local',
-      passwordHash: await bcrypt.hash('User123!', 10),
+      passwordHash: userHash,
       fullName: 'Пользователь',
       role: Role.USER,
     },

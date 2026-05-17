@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { apiClient, getStoredToken, persistToken } from '../api';
+import { apiClient, formatApiError, getStoredToken, persistToken } from '../api';
 import type { Profile, Role } from '../types';
 
 type AuthState = {
@@ -86,8 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login: async (...args) => {
         try {
           return await login(...args);
-        } catch {
-          setError('Неверные учётные данные или сервер недоступен.');
+        } catch (e) {
+          setError(formatApiError(e));
           persistToken(null);
           return false;
         }
@@ -95,8 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register: async (payload) => {
         try {
           return await register(payload);
-        } catch {
-          setError('Регистрация не удалась. Проверьте почту или пароль.');
+        } catch (e) {
+          setError(formatApiError(e));
           persistToken(null);
           return false;
         }

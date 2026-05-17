@@ -1,10 +1,26 @@
 import axios, { AxiosError } from 'axios';
 
-/** Пустая строка = тот же origin (docker-compose nginx proxy). На Railway задайте VITE_API_URL при сборке. */
-const apiBaseUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+declare global {
+  interface Window {
+    __MEETINGHUB_API__?: string;
+  }
+}
+
+/** URL API: runtime config.js → VITE_API_URL при сборке → '' (тот же origin / nginx proxy). */
+export function getApiBaseUrl(): string {
+  const runtime = typeof window !== 'undefined' ? window.__MEETINGHUB_API__?.trim() : '';
+  if (runtime) {
+    return runtime.replace(/\/$/, '');
+  }
+  const built = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+  if (built) {
+    return built.replace(/\/$/, '');
+  }
+  return '';
+}
 
 const apiClient = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: getApiBaseUrl(),
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -27,6 +43,25 @@ export function getStoredToken(): string | null {
   return localStorage.getItem('token');
 }
 
+export function formatApiError(e: unknown): string {
+  const err = e as AxiosError<{ message?: string | string[] }>;
+  if (!err.response) {
+    const base = getApiBaseUrl();
+    if (!base) {
+      return 'Нет связи с API. На Railway задайте API_PUBLIC_URL или API_UPSTREAM для фронта.';
+    }
+    return 'Сервер API недоступен. Проверьте, что MeetingHub-API запущен.';
+  }
+  const msg = err.response.data?.message;
+  if (typeof msg === 'string') {
+    return msg;
+  }
+  if (Array.isArray(msg)) {
+    return msg.join(', ');
+  }
+  return err.response.statusText || 'Ошибка авторизации';
+}
+
 export async function unwrap<T>(
   runner: () => Promise<{ data: T }>,
 ): Promise<{ data?: T; error?: string }> {
@@ -34,18 +69,7 @@ export async function unwrap<T>(
     const response = await runner();
     return { data: response.data };
   } catch (e: unknown) {
-    const err = e as AxiosError<{ message?: string | string[] }>;
-    let message =
-      typeof err.response?.data?.message === 'string'
-        ? err.response.data.message
-        : Array.isArray(err.response?.data?.message)
-          ? err.response!.data!.message!.join(', ')
-          : err.response?.statusText ?? 'Неизвестная ошибка';
-
-    const statusMessage = `${err.response?.status ?? ''}`.trim();
-
-    message = `[${statusMessage || 'нет кода'}] ${message}`;
-    return { error: message };
+    return { error: formatApiError(e) };
   }
 }
 

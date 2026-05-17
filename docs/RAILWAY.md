@@ -123,15 +123,30 @@ https://<ваш-домен-api>.up.railway.app/health
 | **Builder** | Dockerfile |
 | **Dockerfile path** | `Dockerfile` |
 
-### Variables
+### Variables (обязательно для входа в аккаунты)
 
-| Переменная | Когда | Значение |
-| ---------- | ----- | -------- |
-| `VITE_API_URL` | **Build** (важно!) | `https://<ваш-api-domain>.up.railway.app` без слэша в конце |
+| Переменная | Значение |
+| ---------- | -------- |
+| **`API_PUBLIC_URL`** | `https://meetinghub-api-production.up.railway.app` (ваш домен API, **без** `/` в конце) |
 
-В Railway: **Variables** → у `VITE_API_URL` включите **Available at Build Time** / **Build-time variable**.
+После добавления — **Redeploy Web** (пересборка не обязательна: URL подставляется при старте контейнера).
 
-`API_UPSTREAM` для Railway **не нужен** — браузер ходит напрямую на API по `VITE_API_URL`.
+На странице входа под формой будет строка `API: https://...` — если там «не задан», логин не дойдёт до бэкенда.
+
+**На API** в `CORS_ORIGIN` добавьте URL фронта, например:
+
+`https://meetinghub-web-production.up.railway.app`
+
+и сделайте **Redeploy API**.
+
+Альтернатива: `VITE_API_URL` при сборке (build-time) вместо `API_PUBLIC_URL`.
+
+### Логин не работает (сидовые пароли верные)
+
+1. Откройте `https://<api>/health` — должен быть `ok`.
+2. На форме входа проверьте строку **API:** — должен быть домен API, не «не задан».
+3. В Deploy Logs API: `[start] Сид демо-данных` или `Seed OK`.
+4. Перезапустите API (redeploy) — seed обновит пароли admin/manager/user.
 
 ### Почему был Crash
 
