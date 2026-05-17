@@ -1,7 +1,10 @@
 import axios, { AxiosError } from 'axios';
 
+/** Пустая строка = тот же origin (docker-compose nginx proxy). На Railway задайте VITE_API_URL при сборке. */
+const apiBaseUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+
 const apiClient = axios.create({
-  baseURL: '',
+  baseURL: apiBaseUrl,
 });
 
 apiClient.interceptors.request.use((config) => {

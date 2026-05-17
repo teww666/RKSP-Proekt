@@ -39,7 +39,12 @@ services:
   ui:
     build:
       context: ./frontend
+      args:
+        VITE_API_URL: ''
     restart: unless-stopped
+    environment:
+      PORT: '80'
+      API_UPSTREAM: http://api:4000
     ports:
       - '8080:80'
     depends_on:

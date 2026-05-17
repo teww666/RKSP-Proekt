@@ -1,18 +1,20 @@
 server {
-    listen       80;
+    listen       ${PORT};
     server_name  localhost;
     root   /usr/share/nginx/html;
 
     gzip on;
     gzip_types text/css application/javascript application/json;
 
+    # Если задан API_UPSTREAM (docker-compose), проксируем API на бэкенд.
+    # На Railway оставьте пустым и используйте VITE_API_URL при сборке фронта.
     location ~ ^/(auth|users|rooms|bookings|health)(/.*)?$ {
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection upgrade;
-        proxy_pass http://api:4000;
+        proxy_pass ${API_UPSTREAM};
     }
 
     location / {

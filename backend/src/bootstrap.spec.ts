@@ -13,6 +13,6 @@ describe('bootstrap', () => {
 
     await bootstrap();
 
-    expect(listen).toHaveBeenCalledWith(42);
+    expect(listen).toHaveBeenCalledWith(42, '0.0.0.0');
   });
 });

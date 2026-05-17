@@ -119,6 +119,12 @@ npm run test:cov       # Jest coverage (все метрики 100%, модуль
 
 Презентационный текст: `docs/PRESENTATION.md` (структурирован блоками как слайды).
 
+## Деплой на Railway
+
+Пошаговая инструкция, health check и переменные окружения: **[docs/RAILWAY.md](docs/RAILWAY.md)**.
+
+Кратко: health path API — **`/health`** (без префикса `/api`).
+
 ## Публикация в облако
 
 Подойдёт любая связка контейнер + управляемая PostgreSQL:

@@ -1,8 +1,10 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 
-COPY package*.json ./
+# bcrypt требует нативной сборки на Alpine
+RUN apk add --no-cache python3 make g++
 
+COPY package*.json ./
 RUN npm ci
 
 COPY prisma ./prisma
@@ -13,4 +15,5 @@ RUN npx prisma generate && npm run build
 
 EXPOSE 4000
 
-CMD [ "/bin/sh", "-c", "set -eu; npx prisma migrate deploy && npx prisma db seed && node dist/main.js" ]
+# migrate обязателен; seed — только для демо, не валит старт при повторном деплое
+CMD [ "/bin/sh", "-c", "set -eu; npx prisma migrate deploy; npx prisma db seed || true; node dist/main.js" ]
