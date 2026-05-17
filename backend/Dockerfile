@@ -1,7 +1,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++ openssl libc6-compat
 
 COPY package*.json ./
 RUN npm ci

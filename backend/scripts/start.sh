@@ -18,20 +18,28 @@ if [ -z "${DATABASE_URL:-}" ]; then
   exit 1
 fi
 
-# Публичный хост Railway Postgres часто требует SSL
+# Railway Postgres: schema + SSL при необходимости
+case "$DATABASE_URL" in
+  *\?*) ;;
+  *) export DATABASE_URL="${DATABASE_URL}?schema=public" ;;
+esac
+case "$DATABASE_URL" in
+  *schema=*) ;;
+  *) export DATABASE_URL="${DATABASE_URL}&schema=public" ;;
+esac
 case "$DATABASE_URL" in
   *sslmode=*|*postgres.railway.internal*|*railway.internal*) ;;
   *)
     if printf '%s' "$DATABASE_URL" | grep -q 'rlwy.net\|railway.app'; then
-      if printf '%s' "$DATABASE_URL" | grep -q '?'; then
-        export DATABASE_URL="${DATABASE_URL}&sslmode=require"
-      else
-        export DATABASE_URL="${DATABASE_URL}?sslmode=require"
-      fi
-      log 'Добавлен sslmode=require к DATABASE_URL для публичного хоста Railway'
+      export DATABASE_URL="${DATABASE_URL}&sslmode=require"
+      log 'Добавлен sslmode=require к DATABASE_URL'
     fi
     ;;
 esac
+
+if [ "${JWT_SECRET:-}" = "replace-with-long-random-string" ] || [ -z "${JWT_SECRET:-}" ]; then
+  log 'ПРЕДУПРЕЖДЕНИЕ: задайте надёжный JWT_SECRET в Variables (не значение из .env.example)'
+fi
 
 log "PORT=${PORT:-4000}"
 log 'Применяю миграции Prisma...'
@@ -53,7 +61,13 @@ done
 
 if [ "${RUN_SEED:-true}" = 'true' ]; then
   log 'Сид демо-данных (ошибки игнорируются)...'
-  npx prisma db seed || log 'seed пропущен или уже выполнен'
+  set +e
+  npx prisma db seed
+  seed_code=$?
+  set -e
+  if [ "$seed_code" -ne 0 ]; then
+    log "seed завершился с кодом $seed_code (аккаунты могут отсутствовать)"
+  fi
 fi
 
 log 'Запуск NestJS...'
