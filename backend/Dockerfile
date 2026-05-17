@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY prisma ./prisma
-COPY nest-cli.json tsconfig*.json ./
+COPY nest-cli.json tsconfig.json tsconfig.build.json ./
 COPY src ./src
 COPY scripts ./scripts
 

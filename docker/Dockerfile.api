@@ -11,7 +11,7 @@ COPY backend/package*.json ./
 RUN npm ci
 
 COPY backend/prisma ./prisma
-COPY backend/nest-cli.json backend/tsconfig*.json ./
+COPY backend/nest-cli.json backend/tsconfig.json backend/tsconfig.build.json ./
 COPY backend/src ./src
 COPY backend/scripts ./scripts
 
