@@ -1,0 +1,12 @@
+# Запасной вариант: Railway → Settings → Build → Builder = Nixpacks (вместо Dockerfile)
+[phases.setup]
+nixPkgs = ["nodejs_20", "openssl"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npx prisma generate", "npm run build"]
+
+[start]
+cmd = "sh scripts/start-railway.sh"
