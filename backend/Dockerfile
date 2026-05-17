@@ -11,7 +11,10 @@ COPY nest-cli.json tsconfig*.json ./
 COPY src ./src
 COPY scripts ./scripts
 
-RUN chmod +x scripts/start.sh && npx prisma generate && npm run build
+RUN chmod +x scripts/start.sh \
+  && npx prisma generate \
+  && npm run build \
+  && test -f dist/main.js
 
 EXPOSE 4000
 

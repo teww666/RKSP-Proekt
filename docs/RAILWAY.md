@@ -35,13 +35,25 @@ https://<ваш-домен-api>.up.railway.app/health
 
 ## Сервис 2: MeetingHub-API
 
-### Settings → Source
+### Settings → Source (выберите **один** вариант)
+
+**Вариант A — рекомендуется**
 
 | Параметр | Значение |
 | -------- | -------- |
 | **Root Directory** | `backend` |
-| **Builder** | Dockerfile |
 | **Dockerfile path** | `Dockerfile` |
+
+**Вариант B — если Root Directory пустой (корень репозитория)**
+
+| Параметр | Значение |
+| -------- | -------- |
+| **Root Directory** | *(пусто)* |
+| **Dockerfile path** | `docker/Dockerfile.api` |
+
+> Не используйте `backend/Dockerfile` при пустом Root Directory — Docker копирует **корневой** `package.json` без NestJS, `/health` никогда не поднимется. В Build Logs не будет шага `COPY backend/scripts`.
+
+После смены настроек: **Redeploy** и при необходимости **Clear build cache** (Settings → Build).
 
 ### Settings → Networking
 

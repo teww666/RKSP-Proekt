@@ -4,6 +4,13 @@ set -eu
 
 log() { printf '[start] %s\n' "$*"; }
 
+if [ ! -f dist/main.js ]; then
+  log 'ОШИБКА: dist/main.js не найден — образ собран с неверным Docker context.'
+  log 'Railway → MeetingHub-API → Settings → Root Directory = backend, Dockerfile = Dockerfile'
+  log 'ИЛИ Dockerfile path = docker/Dockerfile.api (из корня репозитория).'
+  exit 1
+fi
+
 if [ -z "${DATABASE_URL:-}" ]; then
   log 'ОШИБКА: переменная DATABASE_URL не задана.'
   log 'Railway → сервис MeetingHub-API → Variables → New Variable →'
